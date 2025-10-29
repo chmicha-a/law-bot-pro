@@ -39,14 +39,9 @@ export const Header = () => {
               </Button>
             </>
           ) : (
-            <>
-              <Button variant="ghost" asChild>
-                <Link to="/auth/login">Login</Link>
-              </Button>
-              <Button asChild>
-                <Link to="/auth/register">Sign Up</Link>
-              </Button>
-            </>
+            <Button variant="ghost" asChild>
+              <Link to="/auth/login">Admin Login</Link>
+            </Button>
           )}
         </nav>
       </div>
