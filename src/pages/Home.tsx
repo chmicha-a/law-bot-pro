@@ -39,17 +39,28 @@ export default function Home() {
     setInput("");
     setIsLoading(true);
 
-    // TODO: Replace with actual API call
-    setTimeout(() => {
+    try {
+      const { chatApi } = await import("@/services/api");
+      const response = await chatApi.ask(input);
+      
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: "I'm processing your question about Moroccan law. Please note this is a demo response. Integration with the RAG backend is pending.",
+        content: response.answer,
         role: "assistant",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, assistantMessage]);
+    } catch (error) {
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: error instanceof Error ? error.message : "An error occurred. Please try again.",
+        role: "assistant",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (

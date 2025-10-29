@@ -1,9 +1,11 @@
 import { createContext, useState, useEffect, ReactNode } from "react";
+import { authApi } from "@/services/api";
 
 interface User {
   id: string;
   email: string;
   role: "user" | "admin";
+  token: string;
 }
 
 interface AuthContextType {
@@ -32,15 +34,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // TODO: Replace with actual API call
-      // Temporary mock login
-      const mockUser: User = {
+      const response = await authApi.login({ email, password });
+      const user: User = {
         id: "1",
         email,
-        role: email.includes("admin") ? "admin" : "user",
+        role: "admin",
+        token: response.access_token,
       };
-      setUser(mockUser);
-      localStorage.setItem("user", JSON.stringify(mockUser));
+      setUser(user);
+      localStorage.setItem("user", JSON.stringify(user));
     } finally {
       setIsLoading(false);
     }
@@ -49,14 +51,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const register = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // TODO: Replace with actual API call
-      const mockUser: User = {
-        id: "1",
-        email,
-        role: "user",
-      };
-      setUser(mockUser);
-      localStorage.setItem("user", JSON.stringify(mockUser));
+      // Registration not implemented in backend yet
+      throw new Error("Registration not available yet");
     } finally {
       setIsLoading(false);
     }
