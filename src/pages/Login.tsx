@@ -11,7 +11,7 @@ import { toast } from "sonner";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -19,7 +19,15 @@ export default function Login() {
     try {
       await login(email, password);
       toast.success("Login successful!");
-      navigate("/");
+      
+      // Redirect based on user role
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const userData = JSON.parse(storedUser);
+        navigate(userData.role === "admin" ? "/admin" : "/");
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       toast.error("Login failed. Please try again.");
     }
