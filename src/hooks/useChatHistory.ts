@@ -26,12 +26,18 @@ export const useChatHistory = () => {
   const [chats, setChats] = useState<ChatSession[]>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      const parsed = JSON.parse(stored);
-      return parsed.map((chat: any) => ({
+      const parsed = JSON.parse(stored) as Array<{
+        id: string;
+        title: string;
+        messages: Array<{ id: string; content: string; role: "user" | "assistant"; timestamp: string }>;
+        createdAt: string;
+        updatedAt: string;
+      }>;
+      return parsed.map((chat) => ({
         ...chat,
         createdAt: new Date(chat.createdAt),
         updatedAt: new Date(chat.updatedAt),
-        messages: chat.messages.map((msg: any) => ({
+        messages: chat.messages.map((msg) => ({
           ...msg,
           timestamp: new Date(msg.timestamp),
         })),
