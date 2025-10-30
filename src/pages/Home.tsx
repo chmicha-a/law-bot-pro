@@ -4,15 +4,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, MessageSquare, BookOpen, BarChart3, Settings, Plus, Trash2 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Send, MessageSquare, BookOpen, BarChart3, Settings, Plus, Trash2, FileText, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useChatHistory, Message } from "@/hooks/useChatHistory";
+import { documentApi } from "@/services/api";
+import { toast } from "sonner";
+
+interface Document {
+  filename: string;
+  path: string;
+}
 
 export default function Home() {
   const { user } = useAuth();
   const { currentChatId, currentChat, recentChats, createNewChat, addMessage, loadChat, deleteChat } = useChatHistory(user?.role);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Admin dialog states
+  const [showBrowseLaws, setShowBrowseLaws] = useState(false);
+  const [showStatistics, setShowStatistics] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [isLoadingDocs, setIsLoadingDocs] = useState(false);
 
   // Initialize first chat if none exists
   useEffect(() => {
@@ -74,8 +89,25 @@ export default function Home() {
     deleteChat(chatId);
   };
 
+  const loadDocuments = async () => {
+    setIsLoadingDocs(true);
+    try {
+      const docs = await documentApi.list();
+      setDocuments(docs);
+    } catch (error) {
+      toast.error("Failed to load documents");
+    } finally {
+      setIsLoadingDocs(false);
+    }
+  };
+
+  const handleBrowseLaws = () => {
+    setShowBrowseLaws(true);
+    loadDocuments();
+  };
+
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex h-screen flex-col bg-background overflow-hidden">
       <Header />
 
       <div className="flex flex-1 overflow-hidden">
@@ -88,15 +120,15 @@ export default function Home() {
             </Button>
             {user?.role === "admin" && (
               <>
-                <Button variant="ghost" className="justify-start">
+                <Button variant="ghost" className="justify-start" onClick={handleBrowseLaws}>
                   <BookOpen className="mr-2 h-4 w-4" />
                   Browse Laws
                 </Button>
-                <Button variant="ghost" className="justify-start">
+                <Button variant="ghost" className="justify-start" onClick={() => setShowStatistics(true)}>
                   <BarChart3 className="mr-2 h-4 w-4" />
                   Statistics
                 </Button>
-                <Button variant="ghost" className="justify-start">
+                <Button variant="ghost" className="justify-start" onClick={() => setShowSettings(true)}>
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
                 </Button>
@@ -140,7 +172,7 @@ export default function Home() {
         </aside>
 
         {/* Main Chat Area */}
-        <main className="flex flex-1 flex-col">
+        <main className="flex flex-1 flex-col overflow-hidden">
           <ScrollArea className="flex-1 p-4">
             <div className="mx-auto max-w-3xl space-y-4">
               {messages.map((message) => (
@@ -171,7 +203,7 @@ export default function Home() {
           </ScrollArea>
 
           {/* Input Area */}
-          <div className="border-t border-border bg-card p-4">
+          <div className="shrink-0 border-t border-border bg-card p-4">
             <div className="mx-auto max-w-3xl">
               <div className="flex gap-2">
                 <Input
@@ -190,6 +222,144 @@ export default function Home() {
           </div>
         </main>
       </div>
+
+      {/* Browse Laws Dialog */}
+      <Dialog open={showBrowseLaws} onOpenChange={setShowBrowseLaws}>
+        <DialogContent className="max-w-2xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle>Browse Laws</DialogTitle>
+            <DialogDescription>View all uploaded legal documents</DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="h-[500px] pr-4">
+            {isLoadingDocs ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : documents.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No documents uploaded yet
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {documents.map((doc) => (
+                  <div
+                    key={doc.filename}
+                    className="flex items-center gap-3 rounded-lg border border-border p-4"
+                  >
+                    <FileText className="h-8 w-8 text-primary" />
+                    <div className="flex-1">
+                      <p className="font-medium">{doc.filename}</p>
+                      <p className="text-xs text-muted-foreground">{doc.path}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      {/* Statistics Dialog */}
+      <Dialog open={showStatistics} onOpenChange={setShowStatistics}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Statistics</DialogTitle>
+            <DialogDescription>Overview of system usage and performance</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Chats</p>
+                    <p className="text-2xl font-bold">{recentChats.length}</p>
+                  </div>
+                  <MessageSquare className="h-8 w-8 text-primary" />
+                </div>
+              </Card>
+              <Card className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Documents</p>
+                    <p className="text-2xl font-bold">{documents.length}</p>
+                  </div>
+                  <FileText className="h-8 w-8 text-primary" />
+                </div>
+              </Card>
+              <Card className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Active Chat</p>
+                    <p className="text-2xl font-bold">{currentChat?.messages.length || 0}</p>
+                  </div>
+                  <BarChart3 className="h-8 w-8 text-primary" />
+                </div>
+              </Card>
+              <Card className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Messages</p>
+                    <p className="text-2xl font-bold">
+                      {recentChats.reduce((acc, chat) => acc + chat.messages.length, 0)}
+                    </p>
+                  </div>
+                  <Send className="h-8 w-8 text-primary" />
+                </div>
+              </Card>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Settings Dialog */}
+      <Dialog open={showSettings} onOpenChange={setShowSettings}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Settings</DialogTitle>
+            <DialogDescription>Configure your AI Law Assistant preferences</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium">General Settings</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between rounded-lg border border-border p-4">
+                  <div>
+                    <p className="font-medium">Language</p>
+                    <p className="text-sm text-muted-foreground">Select your preferred language</p>
+                  </div>
+                  <Button variant="outline" size="sm">English</Button>
+                </div>
+                <div className="flex items-center justify-between rounded-lg border border-border p-4">
+                  <div>
+                    <p className="font-medium">Response Length</p>
+                    <p className="text-sm text-muted-foreground">Control detail level of responses</p>
+                  </div>
+                  <Button variant="outline" size="sm">Detailed</Button>
+                </div>
+                <div className="flex items-center justify-between rounded-lg border border-border p-4">
+                  <div>
+                    <p className="font-medium">Auto-save Chats</p>
+                    <p className="text-sm text-muted-foreground">Automatically save conversation history</p>
+                  </div>
+                  <Button variant="outline" size="sm">Enabled</Button>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium">Notification Settings</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between rounded-lg border border-border p-4">
+                  <div>
+                    <p className="font-medium">Email Notifications</p>
+                    <p className="text-sm text-muted-foreground">Receive updates via email</p>
+                  </div>
+                  <Button variant="outline" size="sm">Off</Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
