@@ -10,7 +10,7 @@ import { useChatHistory, Message } from "@/hooks/useChatHistory";
 
 export default function Home() {
   const { user } = useAuth();
-  const { currentChatId, currentChat, recentChats, createNewChat, addMessage, loadChat, deleteChat } = useChatHistory();
+  const { currentChatId, currentChat, recentChats, createNewChat, addMessage, loadChat, deleteChat } = useChatHistory(user?.role);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 

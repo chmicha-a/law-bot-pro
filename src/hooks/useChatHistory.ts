@@ -18,7 +18,7 @@ export interface ChatSession {
 const STORAGE_KEY = "law_assistant_chats";
 const CURRENT_CHAT_KEY = "law_assistant_current_chat";
 
-export const useChatHistory = () => {
+export const useChatHistory = (userRole?: "user" | "admin") => {
   const [currentChatId, setCurrentChatId] = useState<string>(() => {
     return localStorage.getItem(CURRENT_CHAT_KEY) || "";
   });
@@ -72,7 +72,13 @@ export const useChatHistory = () => {
       updatedAt: new Date(),
     };
     
-    setChats((prev) => [newChat, ...prev]);
+    // For regular users, replace all chats with the new one
+    // For admins, add to existing chats
+    if (userRole === "admin") {
+      setChats((prev) => [newChat, ...prev]);
+    } else {
+      setChats([newChat]);
+    }
     setCurrentChatId(newChat.id);
     return newChat.id;
   };
