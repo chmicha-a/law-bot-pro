@@ -1,32 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/common/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, MessageSquare, BookOpen, BarChart3, Settings } from "lucide-react";
-
-interface Message {
-  id: string;
-  content: string;
-  role: "user" | "assistant";
-  timestamp: Date;
-}
+import { Send, MessageSquare, BookOpen, BarChart3, Settings, Plus, Trash2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useChatHistory, Message } from "@/hooks/useChatHistory";
 
 export default function Home() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      content: "Welcome! I'm your AI Law Assistant for Moroccan law. Ask me anything about legal matters, regulations, or specific laws in Morocco.",
-      role: "assistant",
-      timestamp: new Date(),
-    },
-  ]);
+  const { user } = useAuth();
+  const { currentChatId, currentChat, recentChats, createNewChat, addMessage, loadChat, deleteChat } = useChatHistory();
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Initialize first chat if none exists
+  useEffect(() => {
+    if (!currentChatId && recentChats.length === 0) {
+      createNewChat();
+    }
+  }, []);
+
+  const messages = currentChat?.messages || [];
+
   const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || !currentChatId) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -35,7 +33,7 @@ export default function Home() {
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    addMessage(currentChatId, userMessage);
     setInput("");
     setIsLoading(true);
 
@@ -49,7 +47,7 @@ export default function Home() {
         role: "assistant",
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, assistantMessage]);
+      addMessage(currentChatId, assistantMessage);
     } catch (error) {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -57,10 +55,23 @@ export default function Home() {
         role: "assistant",
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, errorMessage]);
+      addMessage(currentChatId, errorMessage);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleNewChat = () => {
+    createNewChat();
+  };
+
+  const handleLoadChat = (chatId: string) => {
+    loadChat(chatId);
+  };
+
+  const handleDeleteChat = (chatId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    deleteChat(chatId);
   };
 
   return (
@@ -71,36 +82,59 @@ export default function Home() {
         {/* Sidebar */}
         <aside className="hidden w-64 border-r border-border bg-card md:flex md:flex-col">
           <div className="flex flex-col gap-2 p-4">
-            <Button variant="ghost" className="justify-start">
-              <MessageSquare className="mr-2 h-4 w-4" />
-              Chat
+            <Button variant="default" className="justify-start" onClick={handleNewChat}>
+              <Plus className="mr-2 h-4 w-4" />
+              New Chat
             </Button>
-            <Button variant="ghost" className="justify-start">
-              <BookOpen className="mr-2 h-4 w-4" />
-              Browse Laws
-            </Button>
-            <Button variant="ghost" className="justify-start">
-              <BarChart3 className="mr-2 h-4 w-4" />
-              Statistics
-            </Button>
-            <Button variant="ghost" className="justify-start">
-              <Settings className="mr-2 h-4 w-4" />
-              Settings
-            </Button>
+            {user?.role === "admin" && (
+              <>
+                <Button variant="ghost" className="justify-start">
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  Browse Laws
+                </Button>
+                <Button variant="ghost" className="justify-start">
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  Statistics
+                </Button>
+                <Button variant="ghost" className="justify-start">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </Button>
+              </>
+            )}
           </div>
 
-          <div className="mt-4 border-t border-border p-4">
-            <h3 className="mb-2 text-sm font-medium text-muted-foreground">Recent Chats</h3>
-            <div className="space-y-1">
-              <Button variant="ghost" size="sm" className="w-full justify-start text-xs">
-                Labor Law Questions
-              </Button>
-              <Button variant="ghost" size="sm" className="w-full justify-start text-xs">
-                Property Rights
-              </Button>
-              <Button variant="ghost" size="sm" className="w-full justify-start text-xs">
-                Commercial Code
-              </Button>
+          <div className="mt-4 flex-1 overflow-hidden border-t border-border">
+            <div className="p-4">
+              <h3 className="mb-2 text-sm font-medium text-muted-foreground">Recent Chats</h3>
+              <ScrollArea className="h-[calc(100vh-300px)]">
+                <div className="space-y-1">
+                  {recentChats.map((chat) => (
+                    <div
+                      key={chat.id}
+                      className={`group flex items-center justify-between rounded-md px-2 py-1.5 text-xs hover:bg-accent ${
+                        currentChatId === chat.id ? "bg-accent" : ""
+                      }`}
+                    >
+                      <button
+                        onClick={() => handleLoadChat(chat.id)}
+                        className="flex-1 truncate text-left"
+                      >
+                        {chat.title}
+                      </button>
+                      <button
+                        onClick={(e) => handleDeleteChat(chat.id, e)}
+                        className="opacity-0 transition-opacity group-hover:opacity-100"
+                      >
+                        <Trash2 className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                      </button>
+                    </div>
+                  ))}
+                  {recentChats.length === 0 && (
+                    <p className="text-xs text-muted-foreground">No chats yet</p>
+                  )}
+                </div>
+              </ScrollArea>
             </div>
           </div>
         </aside>
