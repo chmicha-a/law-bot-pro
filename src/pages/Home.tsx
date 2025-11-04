@@ -14,6 +14,7 @@ import { toast } from "sonner";
 interface Document {
   filename: string;
   path: string;
+  category?: string;
 }
 
 export default function Home() {
@@ -250,6 +251,9 @@ export default function Home() {
                     <div className="flex-1">
                       <p className="font-medium">{doc.filename}</p>
                       <p className="text-xs text-muted-foreground">{doc.path}</p>
+                      {doc.category && (
+                        <p className="text-xs text-primary mt-1">{doc.category}</p>
+                      )}
                     </div>
                   </div>
                 ))}

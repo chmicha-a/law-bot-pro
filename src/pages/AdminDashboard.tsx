@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { Header } from "@/components/common/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { Upload, FileText, Loader2, Trash2 } from "lucide-react";
 import { documentApi } from "@/services/api";
 import { toast } from "sonner";
@@ -9,12 +11,24 @@ import { toast } from "sonner";
 interface Document {
   filename: string;
   path: string;
+  category?: string;
 }
+
+const LAW_CATEGORIES = [
+  "Loi de la famille",
+  "Loi maritime",
+  "Code du travail",
+  "Code pénal",
+  "Code civil",
+  "Loi sur les sociétés",
+  "Autre"
+];
 
 export default function AdminDashboard() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>(LAW_CATEGORIES[0]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -44,7 +58,7 @@ export default function AdminDashboard() {
 
     setIsUploading(true);
     try {
-      const response = await documentApi.upload(file);
+      const response = await documentApi.upload(file, selectedCategory);
       toast.success(response.message || "File uploaded successfully");
       await loadDocuments();
     } catch (error) {
@@ -101,35 +115,52 @@ export default function AdminDashboard() {
               <CardDescription>Add new legal documents to the knowledge base</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col items-center justify-center space-y-4 rounded-lg border-2 border-dashed border-border p-12">
-                <Upload className="h-12 w-12 text-muted-foreground" />
-                <div className="text-center">
-                  <p className="text-sm font-medium">Upload PDF files</p>
-                  <p className="text-xs text-muted-foreground">Click to browse</p>
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="category">Document Category</Label>
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger id="category">
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LAW_CATEGORIES.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                />
-                <Button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
-                >
-                  {isUploading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="mr-2 h-4 w-4" />
-                      Browse Files
-                    </>
-                  )}
-                </Button>
+                <div className="flex flex-col items-center justify-center space-y-4 rounded-lg border-2 border-dashed border-border p-12">
+                  <Upload className="h-12 w-12 text-muted-foreground" />
+                  <div className="text-center">
+                    <p className="text-sm font-medium">Upload PDF files</p>
+                    <p className="text-xs text-muted-foreground">Click to browse</p>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                  >
+                    {isUploading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Browse Files
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -161,6 +192,9 @@ export default function AdminDashboard() {
                         <div>
                           <p className="font-medium">{doc.filename}</p>
                           <p className="text-xs text-muted-foreground">{doc.path}</p>
+                          {doc.category && (
+                            <p className="text-xs text-primary mt-1">{doc.category}</p>
+                          )}
                         </div>
                       </div>
                       <Button

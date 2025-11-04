@@ -17,6 +17,7 @@ export interface AskResponse {
 export interface Document {
   filename: string;
   path: string;
+  category?: string;
 }
 
 export interface LoginCredentials {
@@ -83,9 +84,10 @@ export const documentApi = {
     return data.documents;
   },
 
-  upload: async (file: File): Promise<{ filename: string; path: string; message: string }> => {
+  upload: async (file: File, category: string): Promise<{ filename: string; path: string; category: string; message: string }> => {
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("category", category);
 
     const response = await fetch(`${API_BASE_URL}/upload`, {
       method: "POST",
