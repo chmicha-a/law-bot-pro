@@ -74,7 +74,12 @@ export const chatApi = {
 // Document API
 export const documentApi = {
   list: async (): Promise<Document[]> => {
-    const response = await fetch(`${API_BASE_URL}/documents`);
+    const response = await fetch(`${API_BASE_URL}/documents`, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache',
+      },
+    });
     
     if (!response.ok) {
       throw new Error("Failed to fetch documents");
