@@ -74,10 +74,12 @@ export const chatApi = {
 // Document API
 export const documentApi = {
   list: async (): Promise<Document[]> => {
-    const response = await fetch(`${API_BASE_URL}/documents`, {
+    const timestamp = Date.now();
+    const response = await fetch(`${API_BASE_URL}/documents?t=${timestamp}`, {
       cache: 'no-store',
       headers: {
         'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
       },
     });
     
