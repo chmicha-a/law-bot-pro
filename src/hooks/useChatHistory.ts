@@ -15,10 +15,10 @@ export interface ChatSession {
   updatedAt: Date;
 }
 
-const STORAGE_KEY = "law_assistant_chats";
-const CURRENT_CHAT_KEY = "law_assistant_current_chat";
+export const useChatHistory = (userRole?: "user" | "admin", userId?: string) => {
+  const STORAGE_KEY = `law_assistant_chats_${userId || "guest"}`;
+  const CURRENT_CHAT_KEY = `law_assistant_current_chat_${userId || "guest"}`;
 
-export const useChatHistory = (userRole?: "user" | "admin") => {
   const [currentChatId, setCurrentChatId] = useState<string>(() => {
     return localStorage.getItem(CURRENT_CHAT_KEY) || "";
   });
@@ -48,13 +48,13 @@ export const useChatHistory = (userRole?: "user" | "admin") => {
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(chats));
-  }, [chats]);
+  }, [chats, STORAGE_KEY]);
 
   useEffect(() => {
     if (currentChatId) {
       localStorage.setItem(CURRENT_CHAT_KEY, currentChatId);
     }
-  }, [currentChatId]);
+  }, [currentChatId, CURRENT_CHAT_KEY]);
 
   const createNewChat = () => {
     const newChat: ChatSession = {
