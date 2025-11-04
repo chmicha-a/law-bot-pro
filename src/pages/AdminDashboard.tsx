@@ -77,9 +77,11 @@ export default function AdminDashboard() {
     try {
       await documentApi.delete(filename);
       toast.success("Document deleted successfully");
-      await loadDocuments();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Delete failed");
+    } finally {
+      // Always refresh the list to sync with backend state
+      await loadDocuments();
     }
   };
 
