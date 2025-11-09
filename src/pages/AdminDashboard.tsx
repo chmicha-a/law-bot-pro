@@ -98,22 +98,22 @@ export default function AdminDashboard() {
 
           {/* Quick Stats */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
+            <Card className="border-0 shadow-sm hover:shadow-md transition-all">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Documents</CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Documents</CardTitle>
+                <FileText className="h-4 w-4 text-muted-foreground/60" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{documents.length}</div>
-                <p className="text-xs text-muted-foreground">PDF documents indexed</p>
+                <div className="text-3xl font-semibold">{documents.length}</div>
+                <p className="text-xs text-muted-foreground mt-1">PDF documents indexed</p>
               </CardContent>
             </Card>
           </div>
 
           {/* Upload Section */}
-          <Card>
+          <Card className="border-0 shadow-sm">
             <CardHeader>
-              <CardTitle>Upload Documents</CardTitle>
+              <CardTitle className="text-xl">Upload Documents</CardTitle>
               <CardDescription>Add new legal documents to the knowledge base</CardDescription>
             </CardHeader>
             <CardContent>
@@ -133,7 +133,7 @@ export default function AdminDashboard() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="flex flex-col items-center justify-center space-y-4 rounded-lg border-2 border-dashed border-border p-12">
+                <div className="flex flex-col items-center justify-center space-y-4 rounded-xl border-2 border-dashed border-border/60 p-12 hover:border-border transition-all bg-accent/20">
                   <Upload className="h-12 w-12 text-muted-foreground" />
                   <div className="text-center">
                     <p className="text-sm font-medium">Upload PDF files</p>
@@ -168,9 +168,9 @@ export default function AdminDashboard() {
           </Card>
 
           {/* Document Library */}
-          <Card>
+          <Card className="border-0 shadow-sm">
             <CardHeader>
-              <CardTitle>Document Library</CardTitle>
+              <CardTitle className="text-xl">Document Library</CardTitle>
               <CardDescription>Manage your uploaded legal documents</CardDescription>
             </CardHeader>
             <CardContent>
@@ -187,15 +187,15 @@ export default function AdminDashboard() {
                   {documents.map((doc) => (
                     <div
                       key={doc.filename}
-                      className="flex items-center justify-between rounded-lg border border-border p-4"
+                      className="flex items-center justify-between rounded-xl border-0 bg-accent/30 p-4 hover:bg-accent/50 transition-all group"
                     >
                       <div className="flex items-center gap-3">
-                        <FileText className="h-8 w-8 text-primary" />
+                        <FileText className="h-7 w-7 text-muted-foreground" />
                         <div>
-                          <p className="font-medium">{doc.filename}</p>
-                          <p className="text-xs text-muted-foreground">{doc.path}</p>
+                          <p className="font-medium text-[15px]">{doc.filename}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{doc.path}</p>
                           {doc.category && (
-                            <p className="text-xs text-primary mt-1">{doc.category}</p>
+                            <p className="text-xs text-foreground/60 mt-1">{doc.category}</p>
                           )}
                         </div>
                       </div>
@@ -203,6 +203,7 @@ export default function AdminDashboard() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(doc.filename)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

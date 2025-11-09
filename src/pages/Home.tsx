@@ -113,8 +113,8 @@ export default function Home() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <aside className="hidden w-64 border-r border-border bg-card md:flex md:flex-col">
-          <div className="flex flex-col gap-2 p-4">
+        <aside className="hidden w-64 border-r border-border/50 bg-sidebar md:flex md:flex-col">
+          <div className="flex flex-col gap-1.5 p-3">
             <Button variant="default" className="justify-start" onClick={handleNewChat}>
               <Plus className="mr-2 h-4 w-4" />
               New Chat
@@ -137,15 +137,15 @@ export default function Home() {
             )}
           </div>
 
-          <div className="mt-4 flex-1 overflow-hidden border-t border-border">
-            <div className="p-4">
-              <h3 className="mb-2 text-sm font-medium text-muted-foreground">Recent Chats</h3>
+          <div className="mt-4 flex-1 overflow-hidden border-t border-border/50">
+            <div className="p-3">
+              <h3 className="mb-3 px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Recent Chats</h3>
               <ScrollArea className="h-[calc(100vh-300px)]">
                 <div className="space-y-1">
                   {recentChats.map((chat) => (
                     <div
                       key={chat.id}
-                      className={`group flex items-center justify-between rounded-md px-2 py-1.5 text-xs hover:bg-accent ${
+                      className={`group flex items-center justify-between rounded-lg px-3 py-2.5 text-sm hover:bg-accent/80 cursor-pointer ${
                         currentChatId === chat.id ? "bg-accent" : ""
                       }`}
                     >
@@ -179,24 +179,24 @@ export default function Home() {
               {messages.map((message) => (
                 <Card
                   key={message.id}
-                  className={`p-4 ${
+                  className={`p-5 border-0 shadow-sm ${
                     message.role === "user"
-                      ? "ml-auto bg-primary text-primary-foreground"
+                      ? "ml-auto bg-accent/50"
                       : "bg-card"
-                  } max-w-[85%]`}
+                  } max-w-[85%] transition-all hover:shadow-md`}
                 >
-                  <p className="text-sm leading-relaxed">{message.content}</p>
-                  <p className="mt-2 text-xs opacity-70">
+                  <p className="text-[15px] leading-relaxed">{message.content}</p>
+                  <p className="mt-3 text-xs text-muted-foreground">
                     {message.timestamp.toLocaleTimeString()}
                   </p>
                 </Card>
               ))}
               {isLoading && (
-                <Card className="max-w-[85%] p-4">
+                <Card className="max-w-[85%] p-5 border-0 shadow-sm">
                   <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-primary" />
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-primary delay-100" />
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-primary delay-200" />
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/50" />
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/50" style={{ animationDelay: "0.1s" }} />
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/50" style={{ animationDelay: "0.2s" }} />
                   </div>
                 </Card>
               )}
@@ -204,18 +204,23 @@ export default function Home() {
           </ScrollArea>
 
           {/* Input Area */}
-          <div className="shrink-0 border-t border-border bg-card p-4">
+          <div className="shrink-0 border-t border-border/50 bg-background p-6">
             <div className="mx-auto max-w-3xl">
-              <div className="flex gap-2">
+              <div className="flex gap-3 items-center bg-card rounded-xl border border-border/50 shadow-sm px-4 py-2 focus-within:border-border focus-within:shadow-md transition-all">
                 <Input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSend()}
                   placeholder="Ask about Moroccan laws..."
-                  className="flex-1"
+                  className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-[15px]"
                   disabled={isLoading}
                 />
-                <Button onClick={handleSend} disabled={isLoading || !input.trim()}>
+                <Button 
+                  onClick={handleSend} 
+                  disabled={isLoading || !input.trim()}
+                  size="icon"
+                  className="h-9 w-9 rounded-lg shrink-0"
+                >
                   <Send className="h-4 w-4" />
                 </Button>
               </div>
