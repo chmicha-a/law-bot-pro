@@ -19,7 +19,7 @@ interface Document {
 
 export default function Home() {
   const { user } = useAuth();
-  const { currentChatId, currentChat, recentChats, createNewChat, addMessage, loadChat, deleteChat } = useChatHistory(user?.role, user?.email);
+  const { currentChatId, currentChat, recentChats, createNewChat, addMessage, loadChat, deleteChat } = useChatHistory(user?.role, user?.email || user?.id);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   
