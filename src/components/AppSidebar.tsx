@@ -1,4 +1,5 @@
-import { Plus, BookOpen, BarChart3, Settings, MessageSquare, Trash2 } from "lucide-react";
+import { Plus, BookOpen, BarChart3, Settings, MessageSquare, Trash2, LayoutDashboard } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
   Sidebar,
@@ -89,6 +90,14 @@ export function AppSidebar({
                   <SidebarMenuButton onClick={onSettings}>
                     <Settings className="h-4 w-4" />
                     {open && <span>Settings</span>}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link to="/admin">
+                      <LayoutDashboard className="h-4 w-4" />
+                      {open && <span>Dashboard</span>}
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>

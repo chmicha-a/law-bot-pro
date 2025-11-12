@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { Header } from "@/components/common/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Upload, FileText, Loader2, Trash2 } from "lucide-react";
+import { Upload, FileText, Loader2, Trash2, MessageSquare } from "lucide-react";
 import { documentApi } from "@/services/api";
 import { toast } from "sonner";
 
@@ -91,9 +92,17 @@ export default function AdminDashboard() {
 
       <main className="flex-1 p-6">
         <div className="mx-auto max-w-7xl space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Manage your AI Law Assistant system</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+              <p className="text-muted-foreground">Manage your AI Law Assistant system</p>
+            </div>
+            <Button asChild variant="outline">
+              <Link to="/">
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Go to Chat
+              </Link>
+            </Button>
           </div>
 
           {/* Quick Stats */}
