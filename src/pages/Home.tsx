@@ -7,7 +7,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { Send, MessageSquare, FileText, Loader2, Mic, Paperclip, BarChart3 } from "lucide-react";
+import { 
+  Send, 
+  MessageSquare, 
+  FileText, 
+  Loader2, 
+  Mic, 
+  Paperclip, 
+  BarChart3 
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useChatHistory, Message } from "@/hooks/useChatHistory";
 import { documentApi } from "@/services/api";
