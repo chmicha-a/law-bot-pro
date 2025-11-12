@@ -5,7 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Send, MessageSquare, BookOpen, BarChart3, Settings, Plus, Trash2, FileText, Loader2 } from "lucide-react";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
+import { Send, MessageSquare, FileText, Loader2, Mic, Paperclip, BarChart3 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useChatHistory, Message } from "@/hooks/useChatHistory";
 import { documentApi } from "@/services/api";
@@ -108,125 +110,141 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-background overflow-hidden">
-      <Header />
+    <SidebarProvider>
+      <div className="flex h-screen w-full bg-background">
+        <AppSidebar
+          currentChatId={currentChatId}
+          recentChats={recentChats}
+          onNewChat={handleNewChat}
+          onLoadChat={handleLoadChat}
+          onDeleteChat={handleDeleteChat}
+          onBrowseLaws={handleBrowseLaws}
+          onStatistics={() => setShowStatistics(true)}
+          onSettings={() => setShowSettings(true)}
+        />
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <aside className="hidden w-64 border-r border-border/50 bg-sidebar md:flex md:flex-col">
-          <div className="flex flex-col gap-1.5 p-3">
-            <Button variant="default" className="justify-start" onClick={handleNewChat}>
-              <Plus className="mr-2 h-4 w-4" />
-              New Chat
-            </Button>
-            {user?.role === "admin" && (
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <Header />
+          
+          {/* Main Chat Area */}
+          <main className="flex flex-1 flex-col overflow-hidden relative">
+            {messages.length === 0 ? (
+              <div className="flex flex-1 items-center justify-center px-4">
+                <div className="text-center max-w-3xl w-full">
+                  <h1 className="text-4xl md:text-5xl font-semibold mb-8 text-foreground">
+                    Sur quoi travaillez-vous ?
+                  </h1>
+                  <div className="mx-auto max-w-3xl">
+                    <div className="relative flex gap-2 items-center bg-background rounded-2xl border border-border shadow-lg px-5 py-4 focus-within:shadow-xl transition-all">
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        className="h-9 w-9 rounded-lg shrink-0 hover:bg-accent"
+                      >
+                        <Paperclip className="h-5 w-5" />
+                      </Button>
+                      <Input
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                        placeholder="Poser une question"
+                        className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base"
+                        disabled={isLoading}
+                      />
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        className="h-9 w-9 rounded-lg shrink-0 hover:bg-accent"
+                      >
+                        <Mic className="h-5 w-5" />
+                      </Button>
+                      <Button 
+                        onClick={handleSend} 
+                        disabled={isLoading || !input.trim()}
+                        size="icon"
+                        className="h-9 w-9 rounded-full shrink-0"
+                      >
+                        <Send className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
               <>
-                <Button variant="ghost" className="justify-start" onClick={handleBrowseLaws}>
-                  <BookOpen className="mr-2 h-4 w-4" />
-                  Browse Laws
-                </Button>
-                <Button variant="ghost" className="justify-start" onClick={() => setShowStatistics(true)}>
-                  <BarChart3 className="mr-2 h-4 w-4" />
-                  Statistics
-                </Button>
-                <Button variant="ghost" className="justify-start" onClick={() => setShowSettings(true)}>
-                  <Settings className="mr-2 h-4 w-4" />
-                  Settings
-                </Button>
+                <ScrollArea className="flex-1 px-4 py-6">
+                  <div className="mx-auto max-w-3xl space-y-6">
+                    {messages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                      >
+                        <div
+                          className={`rounded-3xl px-5 py-3 max-w-[80%] ${
+                            message.role === "user"
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-muted/50"
+                          }`}
+                        >
+                          <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                        </div>
+                      </div>
+                    ))}
+                    {isLoading && (
+                      <div className="flex justify-start">
+                        <div className="rounded-3xl px-5 py-3 bg-muted/50">
+                          <div className="flex items-center gap-1.5">
+                            <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/60" />
+                            <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: "0.15s" }} />
+                            <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: "0.3s" }} />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+
+                {/* Input Area - Chat Started */}
+                <div className="shrink-0 bg-background px-4 py-6 border-t border-border/50">
+                  <div className="mx-auto max-w-3xl">
+                    <div className="relative flex gap-2 items-center bg-background rounded-2xl border border-border shadow-lg px-5 py-3 focus-within:shadow-xl transition-all">
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        className="h-9 w-9 rounded-lg shrink-0 hover:bg-accent"
+                      >
+                        <Paperclip className="h-5 w-5" />
+                      </Button>
+                      <Input
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                        placeholder="Poser une question"
+                        className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base"
+                        disabled={isLoading}
+                      />
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        className="h-9 w-9 rounded-lg shrink-0 hover:bg-accent"
+                      >
+                        <Mic className="h-5 w-5" />
+                      </Button>
+                      <Button 
+                        onClick={handleSend} 
+                        disabled={isLoading || !input.trim()}
+                        size="icon"
+                        className="h-9 w-9 rounded-full shrink-0"
+                      >
+                        <Send className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </>
             )}
-          </div>
-
-          <div className="mt-4 flex-1 overflow-hidden border-t border-border/50">
-            <div className="p-3">
-              <h3 className="mb-3 px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Recent Chats</h3>
-              <ScrollArea className="h-[calc(100vh-300px)]">
-                <div className="space-y-1">
-                  {recentChats.map((chat) => (
-                    <div
-                      key={chat.id}
-                      className={`group flex items-center justify-between rounded-lg px-3 py-2.5 text-sm hover:bg-accent/80 cursor-pointer ${
-                        currentChatId === chat.id ? "bg-accent" : ""
-                      }`}
-                    >
-                      <button
-                        onClick={() => handleLoadChat(chat.id)}
-                        className="flex-1 truncate text-left"
-                      >
-                        {chat.title}
-                      </button>
-                      <button
-                        onClick={(e) => handleDeleteChat(chat.id, e)}
-                        className="opacity-0 transition-opacity group-hover:opacity-100"
-                      >
-                        <Trash2 className="h-3 w-3 text-muted-foreground hover:text-destructive" />
-                      </button>
-                    </div>
-                  ))}
-                  {recentChats.length === 0 && (
-                    <p className="text-xs text-muted-foreground">No chats yet</p>
-                  )}
-                </div>
-              </ScrollArea>
-            </div>
-          </div>
-        </aside>
-
-        {/* Main Chat Area */}
-        <main className="flex flex-1 flex-col overflow-hidden">
-          <ScrollArea className="flex-1 p-4">
-            <div className="mx-auto max-w-3xl space-y-4">
-              {messages.map((message) => (
-                <Card
-                  key={message.id}
-                  className={`p-5 border-0 shadow-sm ${
-                    message.role === "user"
-                      ? "ml-auto bg-accent/50"
-                      : "bg-card"
-                  } max-w-[85%] transition-all hover:shadow-md`}
-                >
-                  <p className="text-[15px] leading-relaxed">{message.content}</p>
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    {message.timestamp.toLocaleTimeString()}
-                  </p>
-                </Card>
-              ))}
-              {isLoading && (
-                <Card className="max-w-[85%] p-5 border-0 shadow-sm">
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/50" />
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/50" style={{ animationDelay: "0.1s" }} />
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/50" style={{ animationDelay: "0.2s" }} />
-                  </div>
-                </Card>
-              )}
-            </div>
-          </ScrollArea>
-
-          {/* Input Area */}
-          <div className="shrink-0 border-t border-border/50 bg-background p-6">
-            <div className="mx-auto max-w-3xl">
-              <div className="flex gap-3 items-center bg-card rounded-xl border border-border/50 shadow-sm px-4 py-2 focus-within:border-border focus-within:shadow-md transition-all">
-                <Input
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                  placeholder="Ask about Moroccan laws..."
-                  className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-[15px]"
-                  disabled={isLoading}
-                />
-                <Button 
-                  onClick={handleSend} 
-                  disabled={isLoading || !input.trim()}
-                  size="icon"
-                  className="h-9 w-9 rounded-lg shrink-0"
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
 
       {/* Browse Laws Dialog */}
@@ -369,6 +387,6 @@ export default function Home() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </SidebarProvider>
   );
 }
