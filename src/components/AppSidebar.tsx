@@ -1,4 +1,4 @@
-import { Plus, BookOpen, BarChart3, Settings, MessageSquare, Trash2, LayoutDashboard } from "lucide-react";
+import { Plus, BookOpen, BarChart3, Settings, MessageSquare, Trash2, LayoutDashboard, Scale } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -51,7 +51,15 @@ export function AppSidebar({
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2 px-4 py-3">
-          {open && <span className="text-lg font-semibold">AI Law Assistant</span>}
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-primary">
+            <Scale className="h-6 w-6 text-primary-foreground" />
+          </div>
+          {open && (
+            <div className="flex flex-col">
+              <span className="text-lg font-bold leading-none">AI Law Assistant</span>
+              <span className="text-xs text-muted-foreground">Morocco Beta</span>
+            </div>
+          )}
         </div>
       </SidebarHeader>
 
