@@ -19,11 +19,7 @@ export const useChatHistory = (userRole?: "user" | "admin", userId?: string) => 
   const STORAGE_KEY = `law_assistant_chats_${userId || "guest"}`;
   const CURRENT_CHAT_KEY = `law_assistant_current_chat_${userId || "guest"}`;
 
-  const [currentChatId, setCurrentChatId] = useState<string>(() => {
-    return localStorage.getItem(CURRENT_CHAT_KEY) || "";
-  });
-  
-  const [chats, setChats] = useState<ChatSession[]>(() => {
+  const loadChatsFromStorage = () => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored) as Array<{
@@ -44,7 +40,21 @@ export const useChatHistory = (userRole?: "user" | "admin", userId?: string) => 
       }));
     }
     return [];
+  };
+
+  const [currentChatId, setCurrentChatId] = useState<string>(() => {
+    return localStorage.getItem(CURRENT_CHAT_KEY) || "";
   });
+  
+  const [chats, setChats] = useState<ChatSession[]>(loadChatsFromStorage);
+
+  // Reset chats when userId changes (switching between users or logout)
+  useEffect(() => {
+    const newChats = loadChatsFromStorage();
+    setChats(newChats);
+    const newCurrentChatId = localStorage.getItem(CURRENT_CHAT_KEY) || "";
+    setCurrentChatId(newCurrentChatId);
+  }, [userId]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(chats));
