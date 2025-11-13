@@ -27,6 +27,17 @@ interface Document {
   category?: string;
 }
 
+const categories = [
+  "Loi de la famille",
+  "Loi maritime",
+  "Droit du travail",
+  "Code pénal",
+  "Code civil",
+  "Droit des sociétés",
+  "Loi foncière",
+  "Autres"
+];
+
 export default function Home() {
   const { user } = useAuth();
   const { currentChatId, currentChat, recentChats, createNewChat, addMessage, loadChat, deleteChat } = useChatHistory(user?.role, user?.email || user?.id);
@@ -117,6 +128,10 @@ export default function Home() {
     loadDocuments();
   };
 
+  const handleCategoryClick = (category: string) => {
+    setInput(category);
+  };
+
   return (
     <SidebarProvider>
       <div className="flex h-screen w-full bg-background">
@@ -174,6 +189,24 @@ export default function Home() {
                       >
                         <Send className="h-4 w-4" />
                       </Button>
+                    </div>
+                    
+                    {/* Category Buttons */}
+                    <div className="mt-4">
+                      <ScrollArea className="w-full">
+                        <div className="flex gap-2 pb-2">
+                          {categories.map((category) => (
+                            <Button
+                              key={category}
+                              variant="outline"
+                              onClick={() => handleCategoryClick(category)}
+                              className="whitespace-nowrap rounded-full text-sm bg-muted/30 hover:bg-muted border-border/50 hover:border-border"
+                            >
+                              {category}
+                            </Button>
+                          ))}
+                        </div>
+                      </ScrollArea>
                     </div>
                   </div>
                 </div>
@@ -246,6 +279,24 @@ export default function Home() {
                       >
                         <Send className="h-4 w-4" />
                       </Button>
+                    </div>
+                    
+                    {/* Category Buttons */}
+                    <div className="mt-4">
+                      <ScrollArea className="w-full">
+                        <div className="flex gap-2 pb-2">
+                          {categories.map((category) => (
+                            <Button
+                              key={category}
+                              variant="outline"
+                              onClick={() => handleCategoryClick(category)}
+                              className="whitespace-nowrap rounded-full text-sm bg-muted/30 hover:bg-muted border-border/50 hover:border-border"
+                            >
+                              {category}
+                            </Button>
+                          ))}
+                        </div>
+                      </ScrollArea>
                     </div>
                   </div>
                 </div>
