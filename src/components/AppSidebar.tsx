@@ -133,12 +133,15 @@ export function AppSidebar({
                           <MessageSquare className="inline h-4 w-4 mr-2" />
                           {chat.title}
                         </button>
-                        <button
-                          onClick={(e) => onDeleteChat(chat.id, e)}
-                          className="opacity-0 transition-opacity group-hover:opacity-100 p-1"
-                        >
-                          <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
-                        </button>
+                        {user?.role === "admin" && (
+                          <button
+                            onClick={(e) => onDeleteChat(chat.id, e)}
+                            className="opacity-0 transition-opacity group-hover:opacity-100 p-1 hover:bg-destructive/10 rounded"
+                            title="Delete chat"
+                          >
+                            <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+                          </button>
+                        )}
                       </div>
                     </SidebarMenuItem>
                   ))}
