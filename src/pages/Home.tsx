@@ -147,7 +147,10 @@ export default function Home() {
         />
 
         <div className="flex flex-1 flex-col overflow-hidden">
-          <Header />
+          <div className="flex items-center border-b border-border/50 bg-background px-4 h-14">
+            <SidebarTrigger className="mr-2" />
+            <span className="text-lg font-bold text-[#1e3a8a]">AI Law Assistant Morocco Beta</span>
+          </div>
           
           {/* Main Chat Area */}
           <main className="flex flex-1 flex-col overflow-hidden relative">

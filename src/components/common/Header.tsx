@@ -20,8 +20,8 @@ export const Header = () => {
             <Scale className="h-6 w-6 text-primary-foreground" />
           </div>
           <div className="flex flex-col">
-            <span className="text-lg font-bold leading-none">AI Law Assistant</span>
-            <span className="text-xs text-muted-foreground">Morocco Beta</span>
+            <span className="text-lg font-bold leading-none text-[#1e3a8a]">AI Law Assistant</span>
+            <span className="text-xs text-[#1e3a8a]/70">Morocco Beta</span>
           </div>
         </Link>
 
